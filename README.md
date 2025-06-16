@@ -1,17 +1,16 @@
-# Completar CRUD en api-producto protegido con token
+# Completando un CRUD en api-producto protegido con token
 
 ## Objetivo
-Hacer una API REST con AWS Lambda con las operaciones CRUD y Autenticacion en cada operación
-Completar la API de productos implementando funciones Lambda seguras (con token de acceso) para las siguientes operaciones:
+Hacer una API REST con AWS Lambda con las operaciones CRUD y con Autenticacion en cada operación
+Se completara la API de productos implementando funciones Lambda seguras (con token de acceso) para las siguientes operaciones:
 
+- `CrearProducto` (POST) → Recibe `tenant_id`, `producto_id` y `nombre`, crea un nuevo producto.
 - `ListarProductos` (POST) → Recibe `tenant_id` y devuelve todos los productos asociados.
 - `BuscarProducto` (POST) → Recibe `tenant_id` y `producto_id`, retorna un producto específico.
 - `ModificarProducto` (PUT) → Recibe `tenant_id`, `producto_id` y datos a modificar.
 - `EliminarProducto` (DELETE) → Recibe `tenant_id` y `producto_id`.
 
 Cada función Lambda se protege mediante validación de token a través de otro Lambda llamado `ValidarTokenAcceso`.
-
----
 
 ## 🔐 Validación de Token
 
@@ -32,7 +31,12 @@ Obtiene todos los productos registrados bajo un mismo `tenant_id` utilizando la 
 ### Consideraciones
 - Ideal para tiendas, supermercados u organizaciones que manejan productos de forma separada por cliente.
 
----
+Codigo:
+
+´´´
+xd
+´´´
+
 
 ## 🔍 Función: BuscarProducto
 
