@@ -18,7 +18,7 @@ Todas las funciones inician extrayendo el header `Authorization`, que se pasa co
 
 ---
 
-## 📦 Función: ListarProductos
+## Función: ListarProductos
 
 ### Descripción
 
@@ -33,12 +33,49 @@ Obtiene todos los productos registrados bajo un mismo `tenant_id` utilizando la 
 
 Codigo:
 
-´´´
-xd
-´´´
+```py
+import json
+import boto3
+from boto3.dynamodb.conditions import Key
+
+def lambda_handler(event, context):
+    # Validar token
+    token = event['headers'].get('Authorization')
+    lambda_client = boto3.client('lambda')
+    validacion = lambda_client.invoke(
+        FunctionName="ValidarTokenAcceso",
+        InvocationType='RequestResponse',
+        Payload=json.dumps({'token': token})
+    )
+    if json.loads(validacion['Payload'].read())['statusCode'] == 403:
+        return {'statusCode': 403, 'body': 'Forbidden'}
+
+    # Obtener body
+    body = event['body']
+    if isinstance(body, str):
+        body = json.loads(body)
+
+    tenant_id = body.get('tenant_id')
+    if not tenant_id:
+        return {
+            'statusCode': 400,
+            'body': 'Falta el campo tenant_id en el body.'
+        }
+
+    # Consultar productos de ese tenant
+    table = boto3.resource('dynamodb').Table('t_productos')
+    res = table.query(
+        KeyConditionExpression=Key('tenant_id').eq(tenant_id)
+    )
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps(res.get('Items', []))
+    }
+```
 
 
-## 🔍 Función: BuscarProducto
+## Función: BuscarProducto
 
 ### Descripción
 
@@ -48,9 +85,43 @@ Devuelve un solo producto que coincida tanto con el `tenant_id` como con el `pro
 - Usa operación `get_item` directamente con ambas claves (`PartitionKey` + `SortKey`).
 - Se considera más eficiente que `query` si se conoce la clave exacta.
 
----
+Code:
+```py
+import json
+import boto3
 
-## ✏️ Función: ModificarProducto
+def lambda_handler(event, context):
+    # Validar token
+    token = event['headers'].get('Authorization')
+    lambda_client = boto3.client('lambda')
+    validacion = lambda_client.invoke(
+        FunctionName="ValidarTokenAcceso",
+        InvocationType='RequestResponse',
+        Payload=json.dumps({'token': token})
+    )
+    if json.loads(validacion['Payload'].read())['statusCode'] == 403:
+        return {'statusCode': 403, 'body': 'Forbidden'}
+
+    # Obtener body
+    body = event['body']
+    if isinstance(body, str):
+        body = json.loads(body)
+
+    tenant_id = body['tenant_id']
+    producto_id = body['producto_id']
+
+    # Buscar producto
+    table = boto3.resource('dynamodb').Table('t_productos')
+    res = table.get_item(Key={'tenant_id': tenant_id, 'producto_id': producto_id})
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps(res.get('Item', {}))
+    }
+
+```
+
+## Función: ModificarProducto
 
 ### Descripción
 
@@ -63,9 +134,54 @@ Permite actualizar uno o varios atributos de un producto identificado por `tenan
 ### Consideraciones
 - El cuerpo debe incluir los campos: `tenant_id`, `producto_id` y un objeto `updates` con las propiedades a modificar.
 
+Code:
+```py
+import json
+import boto3
+
+def lambda_handler(event, context):
+    # Validar token
+    token = event['headers'].get('Authorization')
+    lambda_client = boto3.client('lambda')
+    validacion = lambda_client.invoke(
+        FunctionName="ValidarTokenAcceso",
+        InvocationType='RequestResponse',
+        Payload=json.dumps({'token': token})
+    )
+    if json.loads(validacion['Payload'].read())['statusCode'] == 403:
+        return {'statusCode': 403, 'body': 'Forbidden'}
+
+    # Obtener body
+    body = event['body']
+    if isinstance(body, str):
+        body = json.loads(body)
+
+    tenant_id = body['tenant_id']
+    producto_id = body['producto_id']
+    updates = body['updates']  # ejemplo: { "nombre": "Nuevo nombre" }
+
+    # Generar expresiones de actualización
+    update_expr = "SET " + ", ".join(f"{k} = :{k}" for k in updates)
+    expr_attrs = {f":{k}": v for k, v in updates.items()}
+
+    # Actualizar producto
+    table = boto3.resource('dynamodb').Table('t_productos')
+    res = table.update_item(
+        Key={'tenant_id': tenant_id, 'producto_id': producto_id},
+        UpdateExpression=update_expr,
+        ExpressionAttributeValues=expr_attrs,
+        ReturnValues='UPDATED_NEW'
+    )
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps(res['Attributes'])
+    }
+
+```
 ---
 
-## ❌ Función: EliminarProducto
+## Función: EliminarProducto
 
 ### Descripción
 
@@ -74,6 +190,42 @@ Elimina un producto de la base de datos DynamoDB dado su `tenant_id` y `producto
 ### Lógica
 - Usa `delete_item` sobre la tabla `t_productos`.
 - Elimina el registro sin necesidad de una lectura previa.
+
+Code:
+```py
+import json
+import boto3
+
+def lambda_handler(event, context):
+    # Validar token
+    token = event['headers'].get('Authorization')
+    lambda_client = boto3.client('lambda')
+    validacion = lambda_client.invoke(
+        FunctionName="ValidarTokenAcceso",
+        InvocationType='RequestResponse',
+        Payload=json.dumps({'token': token})
+    )
+    if json.loads(validacion['Payload'].read())['statusCode'] == 403:
+        return {'statusCode': 403, 'body': 'Forbidden'}
+
+    # Obtener body
+    body = event['body']
+    if isinstance(body, str):
+        body = json.loads(body)
+
+    tenant_id = body['tenant_id']
+    producto_id = body['producto_id']
+
+    # Eliminar producto
+    table = boto3.resource('dynamodb').Table('t_productos')
+    table.delete_item(Key={'tenant_id': tenant_id, 'producto_id': producto_id})
+
+    return {
+        'statusCode': 200,
+        'body': f'Producto {producto_id} eliminado para tenant {tenant_id}'
+    }
+
+```
 
 ---
 
