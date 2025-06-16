@@ -142,7 +142,7 @@ def lambda_handler(event, context):
 
 ```
 
-## Función: ModificarProducto
+## Función: ActualizarProducto
 
 ### Descripción
 
@@ -200,7 +200,10 @@ def lambda_handler(event, context):
     }
 
 ```
----
+
+En producción:
+
+![](img/actualizar_prod_codigo.JPG)
 
 ## Función: EliminarProducto
 
@@ -262,6 +265,20 @@ Para que las funciones Lambda funcionen correctamente desde la API Gateway:
 2. **Habilitación de CORS**: necesario para aceptar peticiones desde frontends.
 3. **Solicitud de integración**: habilitada para permitir el envío de headers (especialmente el token `Authorization`) desde el cliente a Lambda.
 
+Se crea habilita CORS:
+
+![](img/crear_eliminar_recurso_cors_pre.JPG)
+
+Se selecciona todo:
+
+![](img/crear_eliminar_recurso_cors.JPG)
+
+Luego se habilita la Solicitud de integración:
+
+![](img/actualizar_soli_integracion_pre.JPG)
+
+![](img/actualizar_soli_integracion.JPG)
+
 ---
 
 ## Pruebas realizadas
@@ -272,6 +289,14 @@ Para que las funciones Lambda funcionen correctamente desde la API Gateway:
 | `BuscarProducto` | `{ "tenant_id": "PLAZA VEA", "producto_id": "PVP01" }`                          | Detalles del producto |
 | `ModificarProducto`| `{ "tenant_id": "PLAZA VEA", "producto_id": "PVP01", "updates": { "nombre": "Nuevo" } }`| Confirmación de actualización |
 | `EliminarProducto`| `{ "tenant_id": "PLAZA VEA", "producto_id": "PVP01" }`                         | Código 204 - Eliminado |
+
+Primero se hace el login:
+
+![](img/login_llamada.JPG)
+
+De ahi antes de hacer cualquier operacion CRUD, se pone el token como Header:
+
+![](img/llamada_auth.JPG)
 
 Prueba en CrearProductos:
 
