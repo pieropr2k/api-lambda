@@ -30,7 +30,7 @@ Luego se le crea su método:
 
 ![](img/listar_prod_conf.JPG)
 
-## 🔐 Validación de Token
+## Validación de Token
 
 Todas las funciones inician extrayendo el header `Authorization`, que se pasa como token a la función `ValidarTokenAcceso`. Esta retorna `403 Forbidden` si el token no es válido. El flujo de validación es idéntico en todas las funciones para estandarización y seguridad.
 
@@ -265,6 +265,10 @@ Para que las funciones Lambda funcionen correctamente desde la API Gateway:
 2. **Habilitación de CORS**: necesario para aceptar peticiones desde frontends.
 3. **Solicitud de integración**: habilitada para permitir el envío de headers (especialmente el token `Authorization`) desde el cliente a Lambda.
 
+Se modifica el Tiempo de Ejecución:
+
+![](img/editar_config_basica.JPG)
+
 Se crea habilita CORS:
 
 ![](img/crear_eliminar_recurso_cors_pre.JPG)
@@ -305,6 +309,10 @@ Prueba en CrearProductos:
 Prueba en ListarProductos:
 
 ![](img/get_llamada.JPG)
+
+Se puede ver como se crean los nuevos elementos en la tabla de DynamoDB:
+
+![](img/all_elementos.JPG)
 
 ## Conclusión
 
