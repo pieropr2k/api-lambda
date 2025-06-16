@@ -12,6 +12,24 @@ Se completara la API de productos implementando funciones Lambda seguras (con to
 
 Cada función Lambda se protege mediante validación de token a través de otro Lambda llamado `ValidarTokenAcceso`.
 
+## Primeros pasos:
+
+Se crea el recurso:
+
+![](img/crear_eliminar_recurso.JPG)
+
+Se crea habilita CORS:
+
+![](img/crear_eliminar_recurso_cors_pre.JPG)
+
+Se selecciona todo:
+
+![](img/crear_eliminar_recurso_cors.JPG)
+
+Luego se le crea su método:
+
+![](img/listar_prod_conf.JPG)
+
 ## 🔐 Validación de Token
 
 Todas las funciones inician extrayendo el header `Authorization`, que se pasa como token a la función `ValidarTokenAcceso`. Esta retorna `403 Forbidden` si el token no es válido. El flujo de validación es idéntico en todas las funciones para estandarización y seguridad.
@@ -74,6 +92,9 @@ def lambda_handler(event, context):
     }
 ```
 
+Código en producción:
+
+![](img/listar_prod_codigo.JPG)
 
 ## Función: BuscarProducto
 
@@ -227,9 +248,13 @@ def lambda_handler(event, context):
 
 ```
 
+Código en producción:
+
+![](img/eliminar_prod_codigo.JPG)
+
 ---
 
-## ⚙️ Configuración adicional en API Gateway
+## Configuración adicional en API Gateway
 
 Para que las funciones Lambda funcionen correctamente desde la API Gateway:
 
@@ -239,7 +264,7 @@ Para que las funciones Lambda funcionen correctamente desde la API Gateway:
 
 ---
 
-## 📌 Pruebas realizadas
+## Pruebas realizadas
 
 | Función           | Entrada Ejemplo                                                                 | Resultado Esperado |
 |------------------|----------------------------------------------------------------------------------|---------------------|
@@ -248,9 +273,15 @@ Para que las funciones Lambda funcionen correctamente desde la API Gateway:
 | `ModificarProducto`| `{ "tenant_id": "PLAZA VEA", "producto_id": "PVP01", "updates": { "nombre": "Nuevo" } }`| Confirmación de actualización |
 | `EliminarProducto`| `{ "tenant_id": "PLAZA VEA", "producto_id": "PVP01" }`                         | Código 204 - Eliminado |
 
----
+Prueba en CrearProductos:
 
-## ✅ Conclusión
+![](img/crear_llamada.JPG)
+
+Prueba en ListarProductos:
+
+![](img/get_llamada.JPG)
+
+## Conclusión
 
 Se completó exitosamente la API de productos protegida con token, permitiendo las operaciones CRUD básicas sobre una tabla DynamoDB multi-tenant. Cada Lambda fue implementado con protección de acceso, buena práctica en proyectos reales donde se requiere control y segmentación por cliente o tenant.
 
